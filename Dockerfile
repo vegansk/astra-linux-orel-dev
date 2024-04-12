@@ -10,12 +10,32 @@ RUN apt-get update && \
     libqt5serialport5-dev \
     qtscript5-dev \
     zlib1g-dev \
-    libdevil-dev \
     libtiff5-dev \
     libboost-dev \
     cmake \
-    g++
+    g++ \
+    git \
+    mc
 
-RUN rm -rf /var/lib/apt/lists/*
 
-WORKDIR /home/dev
+ADD csp/linux-amd64_deb.tgz /root
+
+RUN <<EOF
+cd /root/linux-amd64_deb
+./install.sh kc1 lsb-cprocsp-devel
+cd /root
+rm -rf ./linux-amd64_deb
+
+ln -s /home/administrator /home/dev 
+EOF
+
+ENV PATH=$PATH:/opt/cprocsp/bin/amd64:/opt/cprocsp/sbin/amd64
+
+RUN sed -i '/ru_RU.UTF-8/s/^# //g' /etc/locale.gen && \
+    locale-gen
+ENV LANG ru_RU.UTF-8
+ENV LANGUAGE ru_RU:en
+ENV LC_ALL ru_RU.UTF-8
+
+USER administrator
+WORKDIR /home/dev/work
